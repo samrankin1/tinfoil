@@ -8,9 +8,12 @@ from tinfoildb import TinfoilDB
 import passwordgen
 
 DEFAULT_DATABASE = "tinfoil.db"
-DEFAULT_SCRYPT_N = 2 ** 18
+DEFAULT_SCRYPT_N = 19
 DEFAULT_SCRYPT_R = 8
 DEFAULT_SCRYPT_P = 1
+
+SCRYPT_N_MINIMUM = 14
+SCRYPT_N_MAXIMUM = 23
 
 AES_KEY_SIZE = 256 // 8 # 256 bits = 32 bytes
 
@@ -32,7 +35,8 @@ def bool_to_y_n(value):
 		return None
 
 def is_valid_N(number):
-	return (number > 0) and ((number & (number - 1)) == 0) # non-zero power of two
+	# between the static minimum and maximum, inclusive
+	return (number >= SCRYPT_N_MINIMUM) and (number <= SCRYPT_N_MAXIMUM)
 
 def is_valid_r(number):
 	return (number > 0)
@@ -108,10 +112,11 @@ def ask_database_parameters():
 
 	print("[master key work factor]")
 	print("larger values are more secure but slower")
-	print("it must be a non-zero integer exponent of 2; the default is " + str(DEFAULT_SCRYPT_N))
+	print("please refer to speedtest.py to determine an optimal value for your hardware")
+	print("it must be an integer between " + str(SCRYPT_N_MINIMUM) + " and " + str(SCRYPT_N_MAXIMUM) + " (inclusive); the default is " + str(DEFAULT_SCRYPT_N))
 	scrypt_n_input_args = ("scrypt work factor [def: " + str(DEFAULT_SCRYPT_N) + "]: ", )
 	scrypt_n_input_kwargs = {"default": DEFAULT_SCRYPT_N, "verification_function": is_valid_N}
-	scrypt_n_error_message = "work factor must be a non-zero integer exponent of 2!"
+	scrypt_n_error_message = "work factor must be an integer between " + str(SCRYPT_N_MINIMUM) + " and " + str(SCRYPT_N_MAXIMUM) + "!"
 	scrypt_n = do_input_loop(ask_integer, scrypt_n_input_args, scrypt_n_input_kwargs, error_message = scrypt_n_error_message)
 	print()
 
@@ -294,7 +299,7 @@ def main():
 		scrypt_n, scrypt_r, scrypt_p, password = ask_database_parameters()
 
 		print("setting up database...")
-		database.initialize_database(password = password, scrypt_n = scrypt_n, scrypt_r = scrypt_r, scrypt_p = scrypt_p, aes_key_size = AES_KEY_SIZE, hmac_key_size = HMAC_KEY_SIZE)
+		database.initialize_database(password = password, scrypt_n = (2 ** scrypt_n), scrypt_r = scrypt_r, scrypt_p = scrypt_p, aes_key_size = AES_KEY_SIZE, hmac_key_size = HMAC_KEY_SIZE)
 		print("database successfully initialized!")
 	else:
 		print("database successfully loaded!")
