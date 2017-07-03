@@ -1,3 +1,5 @@
+#!/bin/python3
+
 import scrypt
 import time
 import math
@@ -69,8 +71,8 @@ def get_max_N(max_ram):
 def main():
 	max_ram, max_time = ask_parameters()
 
-	password = os.urandom(40)
-	salt = os.urandom(8)
+	password = os.urandom(40) # 40 character placeholder password
+	salt = os.urandom(8) # standard 8-byte salt
 
 	max_n = get_max_N(max_ram)
 	print("checking N values from " + str(MINIMUM_N) + " through " + str(max_n) + "...")
