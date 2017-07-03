@@ -1,3 +1,5 @@
+#!/bin/python3
+
 import sys
 import cmd
 import getpass
@@ -275,12 +277,13 @@ Usage: del <key>"""
 
 		print("please re-type the name of the key to be permanently deleted")
 		confirmation = ask_string("confirm: ")
+		print()
 
 		if confirmation == key:
 			database.delete_record(key)
 			print("key successfully removed from the database")
 		else:
-			print("error: confirmation mismatch -- no changes have been applied to the database")
+			print("error: confirmation mismatch -- no changes have been applied to the database!")
 
 		return True
 
