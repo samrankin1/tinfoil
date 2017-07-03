@@ -90,7 +90,7 @@ class TinfoilDB:
 
 		hmac_valid = cryptoutils.verify_hmac(hmac_key = master_hmac_key, aes_encrypted_data = (opcode_iv + opcode_encrypted), signature = opcode_hmac)
 		if not hmac_valid:
-			raise AssertionError("HMAC authentication failed for opcode!")
+			return False
 
 		decrypted_opcode = cryptoutils.aes_decrypt_bytes(data = opcode_encrypted, iv = opcode_iv, key = master_aes_key) # todo: catch exception
 		success = (decrypted_opcode == opcode_plaintext)
