@@ -124,6 +124,23 @@ class TinfoilDB:
 		self.database.commit()
 		return True
 
+	def check_record(self, key):
+		if not self.check_database_initialized():
+			raise AssertionError("database not yet initialized!")
+
+		cursor = self.database.cursor()
+
+		hashed_key = cryptoutils.do_sha512_hash(data = key)
+		cursor.execute("SELECT count(*) FROM tinfoil_entries WHERE hashed_key = ?", (hashed_key, ))
+		result = cursor.fetchone()[0]
+
+		cursor.close() # TODO: convert all cursors to 'with' blocks
+
+		if result > 0:
+			return True
+		else:
+			return False
+
 	def retrieve_record(self, key):
 		if not self.check_database_initialized():
 			raise AssertionError("database not yet initialized!")

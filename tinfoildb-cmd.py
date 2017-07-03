@@ -222,7 +222,7 @@ Usage: get <key> [--show]"""
 		key = args[0]
 		result = database.retrieve_record(key)
 		if result is None:
-			print("error: no record associated with that key")
+			print("error: no record associated with that key!")
 			return True
 
 		if show_result:
@@ -268,8 +268,19 @@ Usage: del <key>"""
 			return False
 
 		key = args[0]
-		database.delete_record(key)
-		print("key successfully removed from the database")
+
+		if not database.check_record(key):
+			print("error: no record associated with that key!")
+			return True
+
+		print("please re-type the name of the key to be permanently deleted")
+		confirmation = ask_string("confirm: ")
+
+		if confirmation == key:
+			database.delete_record(key)
+			print("key successfully removed from the database")
+		else:
+			print("error: confirmation mismatch -- no changes have been applied to the database")
 
 		return True
 
