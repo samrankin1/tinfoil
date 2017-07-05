@@ -26,10 +26,10 @@ setup(
 		"Topic :: Utilities",
 		"Programming Language :: Python :: 3",
 	],
-	keywords = "encryption passwordmanager aes clipboard",
+	keywords = "encryption passwordmanager aes scrypt clipboard",
 	py_modules = ["tinfoil-db"],
 	install_requires = ["scrypt", "cryptography", "pyperclip"],
 	entry_points = {
-		"console_scripts": ["tinfoil-db=tinfoildb-cmd:main"]
+		"console_scripts": ["tinfoil = tinfoildbcmd:main"]
     }
 )
