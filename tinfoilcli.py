@@ -6,8 +6,8 @@ import getpass
 
 import pyperclip as clipboard
 
-from tinfoildb import TinfoilDB
-import passwordgen
+import passwordlib
+from tinfoillib import TinfoilDB
 
 DEFAULT_DATABASE = "tinfoil.db"
 DEFAULT_SCRYPT_N = 19
@@ -251,7 +251,7 @@ Usage: set <key> [value]"""
 			value = args[1]
 		elif len(args) == 1:
 			length, digits, special_characters, spaces = ask_password_parameters()
-			value = passwordgen.generate_password(length = length, digits = digits, special_characters = special_characters, spaces = spaces)
+			value = passwordlib.generate_password(length = length, digits = digits, special_characters = special_characters, spaces = spaces)
 
 		success = database.store_record(key, value)
 		if success:
@@ -337,4 +337,5 @@ def main():
 
 	DatabaseConsole().cmdloop()
 
-main()
+if __name__ == "__main__":
+	main()
