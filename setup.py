@@ -9,11 +9,11 @@ with open(path.join(here, "README.rst"), encoding = "utf-8") as f:
 	long_description = f.read()
 
 setup(
-	name = "tinfoil-db",
+	name = "tinfoildb",
 	version = "1.0.0",
 	description = "Fast, secure database interface intended for use as a password manager",
 	long_description = long_description,
-	url = "https://github.com/samrankin1/tinfoil",
+	url = "https://github.com/samrankin1/tinfoildb",
 	author = "Sam Rankin",
 	author_email = "sam.rankin@me.com",
 	license = "GPLv3",
