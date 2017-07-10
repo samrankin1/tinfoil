@@ -6,7 +6,7 @@ import getpass
 
 import pyperclip as clipboard
 
-from . import passwordlib
+from . import inputlib, passwordlib
 from .tinfoillib import TinfoilDB
 
 DEFAULT_DATABASE = "tinfoil.db"
@@ -52,60 +52,12 @@ def is_valid_length(number):
 def is_valid_password(string):
 	return True
 
-def ask_string(prompt, default = None, verification_function = None):
-	user_input = input(prompt)
-	if not user_input:
-		return default
-	elif not verification_function is None: # if verification function specified
-		if not verification_function(user_input): # if verification fails
-			return None # return none
-	return user_input
-
-def ask_integer(prompt, default = None, verification_function = None):
-	user_input = input(prompt)
-	if not user_input:
-		return default
-
-	parsed_input = None
-	try:
-		parsed_input = int(user_input)
-	except ValueError:
-		return None
-
-	if not verification_function is None:
-		if not verification_function(parsed_input):
-			return None
-
-	return parsed_input
-
-def ask_boolean(prompt, default = None):
-	user_input = input(prompt)
-	if not user_input:
-		return default
-
-	input_lower = user_input.lower()
-	if input_lower == "y":
-		return True
-	elif input_lower == "n":
-		return False
-	else:
-		return None
-
 def ask_database_password():
 	user_input = getpass.getpass("database master password: ")
 	if not user_input:
 		return None
 	else:
 		return user_input
-
-def do_input_loop(input_function, args, kwargs, error_message = None):
-	while True:
-		result = input_function(*args, **kwargs)
-		if (result != None):
-			return result
-		elif not error_message is None:
-			print(error_message)
-			print()
 
 def ask_database_parameters():
 	print()
@@ -119,7 +71,7 @@ def ask_database_parameters():
 	scrypt_n_input_args = ("scrypt work factor [def: " + str(DEFAULT_SCRYPT_N) + "]: ", )
 	scrypt_n_input_kwargs = {"default": DEFAULT_SCRYPT_N, "verification_function": is_valid_N}
 	scrypt_n_error_message = "work factor must be an integer between " + str(SCRYPT_N_MINIMUM) + " and " + str(SCRYPT_N_MAXIMUM) + "!"
-	scrypt_n = do_input_loop(ask_integer, scrypt_n_input_args, scrypt_n_input_kwargs, error_message = scrypt_n_error_message)
+	scrypt_n = inputlib.do_input_loop(inputlib.ask_integer, scrypt_n_input_args, scrypt_n_input_kwargs, error_message = scrypt_n_error_message)
 	print()
 
 	print("[master key memory factor]")
@@ -128,7 +80,7 @@ def ask_database_parameters():
 	scrypt_r_input_args = ("scrypt memory factor [def: " + str(DEFAULT_SCRYPT_R) + "]: ", )
 	scrypt_r_input_kwargs = {"default": DEFAULT_SCRYPT_R, "verification_function": is_valid_r}
 	scrypt_r_error_message = "memory factor must be a non-zero integer!"
-	scrypt_r = do_input_loop(ask_integer, scrypt_r_input_args, scrypt_r_input_kwargs, error_message = scrypt_r_error_message)
+	scrypt_r = inputlib.do_input_loop(inputlib.ask_integer, scrypt_r_input_args, scrypt_r_input_kwargs, error_message = scrypt_r_error_message)
 	print()
 
 	print("[master key paralellism factor]")
@@ -137,7 +89,7 @@ def ask_database_parameters():
 	scrypt_p_input_args = ("scrypt parallelism factor [def: " + str(DEFAULT_SCRYPT_P) + "]: ", )
 	scrypt_p_input_kwargs = {"default": DEFAULT_SCRYPT_P, "verification_function": is_valid_p}
 	scrypt_p_error_message = "parallelism factor must be a non-zero integer!"
-	scrypt_p = do_input_loop(ask_integer, scrypt_p_input_args, scrypt_p_input_kwargs, error_message = scrypt_p_error_message)
+	scrypt_p = inputlib.do_input_loop(inputlib.ask_integer, scrypt_p_input_args, scrypt_p_input_kwargs, error_message = scrypt_p_error_message)
 	print()
 
 	print()
@@ -176,28 +128,28 @@ def ask_password_parameters():
 	length_input_args = ("password length [def: " + str(DEFAULT_PASSWORD_LENGTH) + "]: ", )
 	length_input_kwargs = {"default": DEFAULT_PASSWORD_LENGTH, "verification_function": is_valid_length}
 	length_error_message = "password length must be a positive integer!"
-	length = do_input_loop(ask_integer, length_input_args, length_input_kwargs, error_message = length_error_message)
+	length = inputlib.do_input_loop(inputlib.ask_integer, length_input_args, length_input_kwargs, error_message = length_error_message)
 	print()
 
 	print("use digits in the random password? this should be enabled if possible")
 	digits_input_args = ("use digits? " + bool_to_y_n(DEFAULT_PASSWORD_DIGITS) + ": ", )
 	digits_input_kwargs = {"default": DEFAULT_PASSWORD_DIGITS}
 	digits_error_message = "digits enabled must be a 'y' for yes, or a 'n' for no"
-	digits = do_input_loop(ask_boolean, digits_input_args, digits_input_kwargs, error_message = digits_error_message)
+	digits = inputlib.do_input_loop(inputlib.ask_boolean, digits_input_args, digits_input_kwargs, error_message = digits_error_message)
 	print()
 
 	print("use special chars in the random password? this should be enabled if possible")
 	special_input_args = ("use special characters? " + bool_to_y_n(DEFAULT_PASSWORD_SPECIAL_CHARACTERS) + ": ", )
 	special_input_kwargs = {"default": DEFAULT_PASSWORD_SPECIAL_CHARACTERS}
 	special_error_message = "special characters enabled must be a 'y' for yes, or a 'n' for no"
-	special = do_input_loop(ask_boolean, special_input_args, special_input_kwargs, error_message = special_error_message)
+	special = inputlib.do_input_loop(inputlib.ask_boolean, special_input_args, special_input_kwargs, error_message = special_error_message)
 	print()
 
 	print("use spaces in the random password? this should be enabled if possible")
 	spaces_input_args = ("use spaces? " + bool_to_y_n(DEFAULT_PASSWORD_DIGITS) + ": ", )
 	spaces_input_kwargs = {"default": DEFAULT_PASSWORD_DIGITS}
 	spaces_error_message = "spaces enabled must be a 'y' for yes, or a 'n' for no"
-	spaces = do_input_loop(ask_boolean, spaces_input_args, spaces_input_kwargs, error_message = spaces_error_message)
+	spaces = inputlib.do_input_loop(inputlib.ask_boolean, spaces_input_args, spaces_input_kwargs, error_message = spaces_error_message)
 	print()
 
 	return (length, digits, special, spaces)
@@ -276,7 +228,7 @@ Usage: del <key>"""
 			return True
 
 		print("please re-type the name of the key to be permanently deleted")
-		confirmation = ask_string("confirm: ")
+		confirmation = inputlib.ask_string("confirm: ")
 		print()
 
 		if confirmation == key:
@@ -304,7 +256,7 @@ Usage: exit"""
 
 def main():
 	database_prompt = "database location [def: " + DEFAULT_DATABASE + "]: "
-	database_file = ask_string(database_prompt, default = DEFAULT_DATABASE)
+	database_file = inputlib.ask_string(database_prompt, default = DEFAULT_DATABASE)
 
 	global database
 	database = TinfoilDB(database_file)

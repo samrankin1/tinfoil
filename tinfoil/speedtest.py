@@ -6,6 +6,8 @@ import os
 
 import scrypt
 
+from . import inputlib
+
 DEFAULT_MAX_RAM = 6
 DEFAULT_MAX_TIME = 5
 
@@ -15,32 +17,6 @@ DEFAULT_R = 8
 
 def is_positive_integer(number):
 	return (number > 0)
-
-def ask_integer(prompt, default = None, verification_function = None):
-	user_input = input(prompt)
-	if not user_input:
-		return default
-
-	parsed_input = None
-	try:
-		parsed_input = int(user_input)
-	except ValueError:
-		return None
-
-	if not verification_function is None:
-		if not verification_function(parsed_input):
-			return None
-
-	return parsed_input
-
-def do_input_loop(input_function, args, kwargs, error_message = None):
-	while True:
-		result = input_function(*args, **kwargs)
-		if (result != None):
-			return result
-		elif not error_message is None:
-			print(error_message)
-			print()
 
 def ask_parameters():
 	print("--- scrypt parameter determination ---")
@@ -52,14 +28,14 @@ def ask_parameters():
 	max_ram_input_args = ("maximum RAM usage in GB [def: " + str(DEFAULT_MAX_RAM) + "]: ", )
 	max_ram_input_kwargs = {"default": DEFAULT_MAX_RAM, "verification_function": is_positive_integer}
 	max_ram_error_message = "maximum RAM usage must be a positive integer!"
-	max_ram = do_input_loop(ask_integer, max_ram_input_args, max_ram_input_kwargs, error_message = max_ram_error_message)
+	max_ram = inputlib.do_input_loop(inputlib.ask_integer, max_ram_input_args, max_ram_input_kwargs, error_message = max_ram_error_message)
 	# print()
 
 	# print("how many seconds are you willing to wait for your database to open?")
 	max_time_input_args = ("maximum wait time in seconds [def: " + str(DEFAULT_MAX_TIME) + "]: ", )
 	max_time_input_kwargs = {"default": DEFAULT_MAX_TIME, "verification_function": is_positive_integer}
 	max_time_error_message = "maximum wait time must be a positive integer!"
-	max_time = do_input_loop(ask_integer, max_time_input_args, max_time_input_kwargs, error_message = max_time_error_message)
+	max_time = inputlib.do_input_loop(inputlib.ask_integer, max_time_input_args, max_time_input_kwargs, error_message = max_time_error_message)
 	print()
 
 	return (max_ram, max_time)
