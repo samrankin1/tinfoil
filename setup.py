@@ -13,7 +13,7 @@ setup(
 	version = "1.0.0",
 	description = "Fast, secure database interface intended for use as a password manager",
 	long_description = long_description,
-	url = "https://github.com/samrankin1/tinfoil-db",
+	url = "https://github.com/samrankin1/tinfoil",
 	author = "Sam Rankin",
 	author_email = "sam.rankin@me.com",
 	license = "GPLv3",
