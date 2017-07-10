@@ -6,8 +6,8 @@ import getpass
 
 import pyperclip as clipboard
 
-from tinfoildb import TinfoilDB
-import passwordgen
+from . import passwordlib
+from .tinfoillib import TinfoilDB
 
 DEFAULT_DATABASE = "tinfoil.db"
 DEFAULT_SCRYPT_N = 19
@@ -114,7 +114,7 @@ def ask_database_parameters():
 
 	print("[master key work factor]")
 	print("larger values are more secure but slower")
-	print("please refer to speedtest.py to determine an optimal value for your hardware")
+	print("please refer to 'tinfoil-spd' to determine an optimal value for your hardware")
 	print("it must be an integer between " + str(SCRYPT_N_MINIMUM) + " and " + str(SCRYPT_N_MAXIMUM) + " (inclusive); the default is " + str(DEFAULT_SCRYPT_N))
 	scrypt_n_input_args = ("scrypt work factor [def: " + str(DEFAULT_SCRYPT_N) + "]: ", )
 	scrypt_n_input_kwargs = {"default": DEFAULT_SCRYPT_N, "verification_function": is_valid_N}
@@ -251,7 +251,7 @@ Usage: set <key> [value]"""
 			value = args[1]
 		elif len(args) == 1:
 			length, digits, special_characters, spaces = ask_password_parameters()
-			value = passwordgen.generate_password(length = length, digits = digits, special_characters = special_characters, spaces = spaces)
+			value = passwordlib.generate_password(length = length, digits = digits, special_characters = special_characters, spaces = spaces)
 
 		success = database.store_record(key, value)
 		if success:
@@ -337,4 +337,5 @@ def main():
 
 	DatabaseConsole().cmdloop()
 
-main()
+if __name__ == "__main__":
+	main()

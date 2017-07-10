@@ -2,7 +2,7 @@ import os
 import sqlite3
 import binascii
 
-import cryptoutils
+from . import cryptolib
 
 DATABASE_VERSION = 1
 
@@ -37,13 +37,13 @@ class TinfoilDB:
 		if self.check_database_initialized():
 			raise AssertionError("database is already initialized!")
 
-		scrypt_salt = cryptoutils.get_random_bytes(length = SCRYPT_SALT_SIZE)
-		master_key = cryptoutils.do_scrypt(password = password, salt = scrypt_salt, n = scrypt_n, r = scrypt_r, p = scrypt_p, key_length = (aes_key_size + hmac_key_size))
+		scrypt_salt = cryptolib.get_random_bytes(length = SCRYPT_SALT_SIZE)
+		master_key = cryptolib.do_scrypt(password = password, salt = scrypt_salt, n = scrypt_n, r = scrypt_r, p = scrypt_p, key_length = (aes_key_size + hmac_key_size))
 		master_aes_key = master_key[:aes_key_size]
 		master_hmac_key = master_key[aes_key_size:]
 
-		opcode_iv, opcode_encrypted = cryptoutils.aes_encrypt_bytes(data = OPCODE, key = master_aes_key)
-		opcode_hmac = cryptoutils.do_hmac(hmac_key = master_hmac_key, aes_encrypted_data = (opcode_iv + opcode_encrypted))
+		opcode_iv, opcode_encrypted = cryptolib.aes_encrypt_bytes(data = OPCODE, key = master_aes_key)
+		opcode_hmac = cryptolib.do_hmac(hmac_key = master_hmac_key, aes_encrypted_data = (opcode_iv + opcode_encrypted))
 
 		cursor = self.database.cursor()
 
@@ -84,15 +84,15 @@ class TinfoilDB:
 		if version != DATABASE_VERSION:
 			raise AssertionError("database version mismatch! expected '" + str(DATABASE_VERSION) + "', got '" + str(version) + "'")
 
-		master_key = cryptoutils.do_scrypt(password = password, salt = scrypt_salt, n = scrypt_n, r = scrypt_r, p = scrypt_p, key_length = (aes_key_size + hmac_key_size))
+		master_key = cryptolib.do_scrypt(password = password, salt = scrypt_salt, n = scrypt_n, r = scrypt_r, p = scrypt_p, key_length = (aes_key_size + hmac_key_size))
 		master_aes_key = master_key[:aes_key_size]
 		master_hmac_key = master_key[aes_key_size:]
 
-		hmac_valid = cryptoutils.verify_hmac(hmac_key = master_hmac_key, aes_encrypted_data = (opcode_iv + opcode_encrypted), signature = opcode_hmac)
+		hmac_valid = cryptolib.verify_hmac(hmac_key = master_hmac_key, aes_encrypted_data = (opcode_iv + opcode_encrypted), signature = opcode_hmac)
 		if not hmac_valid:
 			return False
 
-		decrypted_opcode = cryptoutils.aes_decrypt_bytes(data = opcode_encrypted, iv = opcode_iv, key = master_aes_key) # todo: catch exception
+		decrypted_opcode = cryptolib.aes_decrypt_bytes(data = opcode_encrypted, iv = opcode_iv, key = master_aes_key) # todo: catch exception
 		success = (decrypted_opcode == opcode_plaintext)
 
 		if success:
@@ -110,9 +110,9 @@ class TinfoilDB:
 
 		cursor = self.database.cursor()
 
-		hashed_key = cryptoutils.do_sha512_hash(data = key)
-		iv, encrypted_value = cryptoutils.aes_encrypt_bytes(data = value.encode("utf-8"), key = self.master_aes_key)
-		hmac_signature = cryptoutils.do_hmac(hmac_key = self.master_hmac_key, aes_encrypted_data = (iv + encrypted_value))
+		hashed_key = cryptolib.do_sha512_hash(data = key)
+		iv, encrypted_value = cryptolib.aes_encrypt_bytes(data = value.encode("utf-8"), key = self.master_aes_key)
+		hmac_signature = cryptolib.do_hmac(hmac_key = self.master_hmac_key, aes_encrypted_data = (iv + encrypted_value))
 
 		try:
 			cursor.execute("INSERT INTO tinfoil_entries VALUES(?, ?, ?, ?)", (hashed_key, encrypted_value, iv, hmac_signature))
@@ -130,7 +130,7 @@ class TinfoilDB:
 
 		cursor = self.database.cursor()
 
-		hashed_key = cryptoutils.do_sha512_hash(data = key)
+		hashed_key = cryptolib.do_sha512_hash(data = key)
 		cursor.execute("SELECT count(*) FROM tinfoil_entries WHERE hashed_key = ?", (hashed_key, ))
 		result = cursor.fetchone()[0]
 
@@ -149,7 +149,7 @@ class TinfoilDB:
 
 		cursor = self.database.cursor()
 
-		hashed_key = cryptoutils.do_sha512_hash(data = key)
+		hashed_key = cryptolib.do_sha512_hash(data = key)
 		cursor.execute("SELECT encrypted_value, iv, hmac_signature FROM tinfoil_entries WHERE hashed_key = ?", (hashed_key, ))
 		result = cursor.fetchone()
 
@@ -158,11 +158,11 @@ class TinfoilDB:
 
 		encrypted_value, iv, hmac_signature = result # unpack the values
 
-		hmac_valid = cryptoutils.verify_hmac(hmac_key = self.master_hmac_key, aes_encrypted_data = (iv + encrypted_value), signature = hmac_signature)
+		hmac_valid = cryptolib.verify_hmac(hmac_key = self.master_hmac_key, aes_encrypted_data = (iv + encrypted_value), signature = hmac_signature)
 		if not hmac_valid:
 			raise AssertionError("HMAC authentication failed for record with key '" + key + "'!")
 
-		decrypted_value = cryptoutils.aes_decrypt_bytes(data = encrypted_value, iv = iv, key = self.master_aes_key)
+		decrypted_value = cryptolib.aes_decrypt_bytes(data = encrypted_value, iv = iv, key = self.master_aes_key)
 		decoded_value = decrypted_value.decode("utf-8")
 
 		cursor.close()
@@ -174,7 +174,7 @@ class TinfoilDB:
 
 		cursor = self.database.cursor()
 
-		hashed_key = cryptoutils.do_sha512_hash(key)
+		hashed_key = cryptolib.do_sha512_hash(key)
 		cursor.execute("DELETE FROM tinfoil_entries WHERE hashed_key = ?", (hashed_key, ))
 
 		cursor.close()

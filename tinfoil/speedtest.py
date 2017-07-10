@@ -1,9 +1,10 @@
 #!/bin/python3
 
-import scrypt
 import time
 import math
 import os
+
+import scrypt
 
 DEFAULT_MAX_RAM = 6
 DEFAULT_MAX_TIME = 5
@@ -97,4 +98,5 @@ def main():
 		else:
 			print("N = " + str(n) + "; time = " + str(elapsed) + "s")
 
-main()
+if __name__ == "__main__":
+	main()
